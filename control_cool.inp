@@ -1,0 +1,44 @@
+units metal
+dimension 3
+boundary p p p
+atom_style atomic
+
+read_data structure.inp
+include potential.inp
+
+# Define thermo output
+thermo_style custom step temp pe ke etotal press vol lx ly lz xy xz yz pxx pyy pzz pxy pxz pyz cella cellb cellc cellalpha cellbeta cellgamma
+thermo 100 
+thermo_modify format float %20.15g
+
+#variables
+variable dumptime equal 10000
+
+
+timestep 0.001
+
+# Perform initial box relaxation
+dump 1 all custom ${dumptime} dump_box_relax.out id type xsu ysu zsu fx fy fz vx vy vz
+fix 1 all box/relax aniso 0.0 vmax 0.001 
+min_style cg
+minimize 0 1.0e-6 10000 100000
+unfix 1
+
+# Set initial velocities
+velocity all create 1200 51799 dist gaussian
+
+# NPT simulation at 800K
+dump 2 all custom ${dumptime} dump_npt_800.out id type xsu ysu zsu fx fy fz vx vy vz
+fix 2 all npt temp 800 800 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0 z 0.0 0.0 1.0 xy 0.0 0.0 1.0 xz 0.0 0.0 1.0 yz 0.0 0.0 1.0
+run 200000
+unfix 2
+
+# NPT simulation cooling from 800K to 300K
+dump 3 all custom ${dumptime} dump_npt_cooling.out id type xsu ysu zsu fx fy fz vx vy vz
+fix 3 all npt temp 800 300.0 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0 z 0.0 0.0 1.0 xy 0.0 0.0 1.0 xz 0.0 0.0 1.0 yz 0.0 0.0 1.0
+run 1000000
+unfix 3
+
+# Output final state
+write_data final.data
+write_restart final.restart
