@@ -1,0 +1,14 @@
+cmake ../cmake \
+-D PKG_KSPACE=ON \
+-D PKG_GPU=yes \
+-D PKG_MOLECULE=yes \
+-D Kokkos_ARCH_AMDAVX=yes \
+-D BUILD_MPI=yes \
+-D BUILD_OMP=yes \
+-D PKG_ML-PACE=yes \
+-D KOKKOS_ARCH_AMPERE80=yes \
+-D GPU_API=CUDA \
+-D GPU_ARCH=sm_80 \
+-D DOWNLOAD_KIM=yes \
+-D Kokkos_ENABLE_OPENMP=yes \
+-D Kokkos_ENABLE_CUDA=yes
